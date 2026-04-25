@@ -19,6 +19,7 @@ function AuthorPhaseHarness({ onEnterBattle }: { onEnterBattle?: () => void }) {
       draftQuestion={draft}
       questionStatus={status}
       acceptedQuestions={accepted}
+      userName="Test User"
       onSetDraft={setDraft}
       onSetStatus={setStatus}
       onAccept={(q) => setAccepted((prev) => [...prev, q])}
