@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import type { OutlineState } from '../types';
 
 const DEFAULT_OUTLINE: OutlineState = {
@@ -16,6 +16,8 @@ function localKey(userId: string, docId: string) {
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function loadOutline(userId: string, docId: string): Promise<OutlineState> {
+  if (!isSupabaseReady()) return loadFromLocalStorage(userId, docId);
+
   try {
     const { data, error } = await supabase
       .from('outlines')
@@ -43,8 +45,7 @@ function loadFromLocalStorage(userId: string, docId: string): OutlineState {
   try {
     const raw = localStorage.getItem(localKey(userId, docId));
     return raw ? (JSON.parse(raw) as OutlineState) : { ...DEFAULT_OUTLINE };
-  } catch (err) {
-    console.warn('[outlineService] localStorage read failed:', err);
+  } catch {
     return { ...DEFAULT_OUTLINE };
   }
 }
@@ -54,10 +55,13 @@ export async function saveOutline(
   docId: string,
   outline: OutlineState
 ): Promise<void> {
-  // Debounce: cancel any pending save and schedule a new one
   if (saveTimer) clearTimeout(saveTimer);
 
   saveTimer = setTimeout(async () => {
+    if (!isSupabaseReady()) {
+      saveToLocalStorage(userId, docId, outline);
+      return;
+    }
     try {
       await supabase.from('outlines').upsert({
         user_id: userId,
@@ -69,8 +73,7 @@ export async function saveOutline(
         explain_round: outline.explainRound,
         updated_at: new Date().toISOString(),
       });
-    } catch (err) {
-      console.warn('[outlineService] Supabase save failed, falling back to localStorage:', err);
+    } catch {
       saveToLocalStorage(userId, docId, outline);
     }
   }, 300);
@@ -79,7 +82,7 @@ export async function saveOutline(
 function saveToLocalStorage(userId: string, docId: string, outline: OutlineState): void {
   try {
     localStorage.setItem(localKey(userId, docId), JSON.stringify(outline));
-  } catch (err) {
-    console.warn('[outlineService] localStorage write failed:', err);
+  } catch {
+    // localStorage unavailable
   }
 }

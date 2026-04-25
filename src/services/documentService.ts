@@ -1,8 +1,10 @@
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import { DOCUMENT } from './mockData';
 import type { Document } from '../types';
 
 export async function getDocument(docId?: string): Promise<Document> {
+  if (!isSupabaseReady()) return DOCUMENT;
+
   try {
     const query = supabase.from('documents').select('*');
     const { data, error } = docId
@@ -26,10 +28,6 @@ export async function getDocument(docId?: string): Promise<Document> {
   }
 }
 
-/**
- * Validates that a document has the required structure.
- * Used for testing and data integrity checks.
- */
 export function validateDocument(doc: Document): boolean {
   return !!(
     doc.id &&

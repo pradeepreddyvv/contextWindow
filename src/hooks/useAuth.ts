@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import type { UserProfile } from '../types';
 
 export function useAuth() {
@@ -8,6 +8,12 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isSupabaseReady()) {
+      setLoading(false);
+      setError('Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.');
+      return;
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser({
@@ -37,22 +43,40 @@ export function useAuth() {
 
   const signIn = useCallback(async (email: string, password: string) => {
     setError(null);
+    if (!isSupabaseReady()) {
+      setError('Supabase not configured.');
+      return;
+    }
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError) setError(authError.message);
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName: string) => {
     setError(null);
-    const { error: authError } = await supabase.auth.signUp({
+    if (!isSupabaseReady()) {
+      setError('Supabase not configured.');
+      return;
+    }
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: displayName } },
+      options: { 
+        data: { display_name: displayName },
+        emailRedirectTo: window.location.origin,
+      },
     });
-    if (authError) setError(authError.message);
+    if (authError) {
+      setError(authError.message);
+    } else if (data?.user && !data.session) {
+      // Email confirmation required
+      setError('Check your email for a confirmation link to complete sign-up.');
+    }
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
+    if (isSupabaseReady()) {
+      await supabase.auth.signOut();
+    }
     setUser(null);
   }, []);
 
