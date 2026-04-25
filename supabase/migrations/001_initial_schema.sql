@@ -1,4 +1,4 @@
--- Scaffold (Provoke) — Initial Database Schema
+-- ASK — Initial Database Schema
 -- Supabase project: kiro (awktgaehmdpgkubykdvn)
 
 -- Documents table (hardcoded study texts, extensible later)

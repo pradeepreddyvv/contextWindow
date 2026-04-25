@@ -8,7 +8,7 @@ import DocumentUpload from './components/DocumentUpload';
 import StudyMode from './components/StudyMode';
 import BattleMode from './components/BattleMode';
 
-const STORAGE_KEY = 'scaffold-state';
+const STORAGE_KEY = 'ask-state';
 
 function loadPersistedState() {
   try {

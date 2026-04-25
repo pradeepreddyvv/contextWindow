@@ -1,8 +1,8 @@
-# Scaffold — Active Learning Study Tool
+# ASK — Active Learning Study Tool
 
 > **"The AI never gives the answer. It only asks better questions."**
 
-Scaffold is a document-centric active-learning web app built for the Kiro Spark Challenge. Students upload any document (PDF, URL, or YouTube transcript), then engage with it through AI-powered lenses that provoke thinking. Battle Mode rewards reasoning rigor over recall.
+ASK is a document-centric active-learning web app built for the Kiro Spark Challenge. Students upload any document (PDF, URL, or paste text), then engage with it through AI-powered lenses that provoke thinking. Battle Mode rewards reasoning rigor over recall.
 
 ---
 
@@ -10,7 +10,7 @@ Scaffold is a document-centric active-learning web app built for the Kiro Spark 
 
 | Mode | What happens |
 |---|---|
-| **Document Upload** | Upload a PDF, paste a URL, or import a YouTube transcript to begin studying. |
+| **Document Upload** | Upload a PDF, paste a URL, or paste text to begin studying. |
 | **Study Mode** | Read the document through 4 AI lenses (Watch For, Prerequisite Check, Common Misconceptions, Explain It Back). Pin questions and highlights to your Outline. |
 | **Solo Battle** | Author 3+ questions (AI rejects shallow ones). Answer with typed reasoning. See your score and peer comparisons. |
 | **Multiplayer Battle Rooms** | Host or join a room. AI generates questions from the document. Real-time scoring via Supabase Realtime. |
@@ -25,7 +25,7 @@ The AI **never** summarizes, answers, or rewrites student text. Every output is 
 |---|---|
 | Frontend | React + TypeScript + Vite |
 | Backend | Supabase (Postgres + Auth + Realtime) |
-| AI | Anthropic Claude API |
+| AI | LLM API |
 | Styling | CSS custom properties |
 | Testing | Vitest + React Testing Library + fast-check |
 | Deploy | Vercel |
@@ -39,7 +39,7 @@ git clone https://github.com/pradeepreddyvv/contextWindow.git
 cd contextWindow
 npm install
 cp .env.example .env.local
-# Add your Supabase and Anthropic keys to .env.local
+# Add your Supabase and API keys to .env.local
 npm run dev
 ```
 
@@ -52,7 +52,7 @@ Open [http://localhost:5173](http://localhost:5173).
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_ANTHROPIC_API_KEY=sk-ant-api03-...
+VITE_ANTHROPIC_API_KEY=your-api-key
 ```
 
 ---
@@ -66,13 +66,13 @@ contextWindow/
 │   ├── types.ts                ← Shared TypeScript interfaces
 │   ├── reducer.ts              ← AppState reducer + actions
 │   ├── components/
-│   │   ├── DocumentUpload.tsx  ← PDF/URL/YouTube import
+│   │   ├── DocumentUpload.tsx  ← PDF/URL/paste import
 │   │   ├── StudyMode.tsx       ← Three-column study layout
 │   │   ├── BattleMode.tsx      ← Solo + multiplayer battle
 │   │   ├── BattleRoom.tsx      ← Multiplayer room logic
 │   │   └── ...                 ← Lens, outline, provocation components
 │   ├── services/
-│   │   ├── llmService.ts       ← Anthropic Claude API client
+│   │   ├── llmService.ts       ← LLM API client
 │   │   ├── guardrailService.ts ← Blocks forbidden AI output
 │   │   ├── lensService.ts      ← Generates lens questions
 │   │   ├── documentParser.ts   ← Parses uploaded text into sections

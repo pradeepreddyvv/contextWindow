@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Scaffold (Provoke) application implements a robust data persistence layer with three core services that handle document retrieval, outline management, and battle session tracking. Each service follows a **Supabase-first, localStorage-fallback** pattern to ensure the application works seamlessly in both online and offline modes.
+The ASK application implements a robust data persistence layer with three core services that handle document retrieval, outline management, and battle session tracking. Each service follows a **Supabase-first, localStorage-fallback** pattern to ensure the application works seamlessly in both online and offline modes.
 
 ## Architecture Pattern
 
@@ -536,4 +536,4 @@ When modifying data services:
 
 ## License
 
-This implementation follows the project's MIT license and incorporates patterns from Microsoft Research's Promptions project (also MIT licensed).
+This implementation follows the project's MIT license.

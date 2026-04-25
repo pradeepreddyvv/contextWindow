@@ -361,7 +361,7 @@ console.log('Supabase client:', supabase);
 localStorage is full (5-10MB limit). Clear old data:
 
 ```javascript
-// Clear all Scaffold data
+// Clear all ASK data
 Object.keys(localStorage)
   .filter(key => key.startsWith('outline-') || key.startsWith('battle-'))
   .forEach(key => localStorage.removeItem(key));
