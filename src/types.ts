@@ -126,6 +126,12 @@ export interface BattleState {
   results: BattleResult[] | null;
 }
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  displayName: string;
+}
+
 export interface AppState {
   mode: AppMode;
   activeLens: LensType;
@@ -148,6 +154,7 @@ export interface AppState {
   battleResults: BattleResult[] | null;
 
   userId: string;
+  userName: string;
 
   // Battle Rooms (Multiplayer)
   roomState: RoomState;

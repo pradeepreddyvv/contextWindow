@@ -1,6 +1,7 @@
 import { useReducer, useEffect } from 'react';
 import { reducer, initialState } from './reducer';
 import { useAuth } from './hooks/useAuth';
+import AuthGate from './components/AuthGate';
 import Header from './components/Header';
 import StudyMode from './components/StudyMode';
 import BattleMode from './components/BattleMode';
@@ -22,59 +23,42 @@ function loadPersistedState() {
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState, loadPersistedState);
-  const { user, loading, signInAnonymously } = useAuth();
+  const { user, loading, error, signIn, signUp, signOut } = useAuth();
 
   useEffect(() => {
-    if (!user && !loading) {
-      signInAnonymously();
-    }
     if (user) {
-      dispatch({ type: 'SET_USER', payload: user.id });
+      dispatch({ type: 'SET_USER', payload: { id: user.id, name: user.displayName } });
     }
-  }, [user, loading, signInAnonymously]);
+  }, [user]);
 
   useEffect(() => {
     try {
-      const { userId: _, ...rest } = state;
+      const { userId: _, userName: _n, ...rest } = state;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(rest));
     } catch {
       // localStorage unavailable
     }
   }, [state]);
 
-  if (loading) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        fontFamily: 'var(--font-ui)',
-        fontSize: '0.8rem',
-        color: 'var(--color-muted)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.1em',
-      }}>
-        Loading...
-      </div>
-    );
-  }
-
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header
-        mode={state.mode}
-        onSetMode={(mode) => dispatch({ type: 'SET_MODE', payload: mode })}
-        onReset={() => {
-          dispatch({ type: 'RESET_SESSION' });
-          try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
-        }}
-      />
-      {state.mode === 'study' ? (
-        <StudyMode state={state} dispatch={dispatch} />
-      ) : (
-        <BattleMode state={state} dispatch={dispatch} />
-      )}
-    </div>
+    <AuthGate user={user} loading={loading} error={error} onSignIn={signIn} onSignUp={signUp}>
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Header
+          mode={state.mode}
+          userName={state.userName}
+          onSetMode={(mode) => dispatch({ type: 'SET_MODE', payload: mode })}
+          onSignOut={signOut}
+          onReset={() => {
+            dispatch({ type: 'RESET_SESSION' });
+            try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
+          }}
+        />
+        {state.mode === 'study' ? (
+          <StudyMode state={state} dispatch={dispatch} />
+        ) : (
+          <BattleMode state={state} dispatch={dispatch} />
+        )}
+      </div>
+    </AuthGate>
   );
 }

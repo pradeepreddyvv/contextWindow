@@ -1,4 +1,4 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import type { BattleState } from '../types';
 
 function localKey(userId: string, docId: string) {
@@ -6,14 +6,7 @@ function localKey(userId: string, docId: string) {
 }
 
 export async function loadBattle(userId: string, docId: string): Promise<BattleState | null> {
-  if (isMockMode() || !supabase) {
-    try {
-      const raw = localStorage.getItem(localKey(userId, docId));
-      return raw ? (JSON.parse(raw) as BattleState) : null;
-    } catch {
-      return null;
-    }
-  }
+  if (!isSupabaseReady()) return loadFromLocalStorage(userId, docId);
 
   try {
     const { data, error } = await supabase
@@ -33,6 +26,16 @@ export async function loadBattle(userId: string, docId: string): Promise<BattleS
       answers: data.answers ?? {},
       results: data.results ?? null,
     };
+  } catch (err) {
+    console.warn('[battleService] Supabase load failed, falling back to localStorage:', err);
+    return loadFromLocalStorage(userId, docId);
+  }
+}
+
+function loadFromLocalStorage(userId: string, docId: string): BattleState | null {
+  try {
+    const raw = localStorage.getItem(localKey(userId, docId));
+    return raw ? (JSON.parse(raw) as BattleState) : null;
   } catch {
     return null;
   }
@@ -43,15 +46,10 @@ export async function saveBattle(
   docId: string,
   battle: BattleState
 ): Promise<void> {
-  if (isMockMode() || !supabase) {
-    try {
-      localStorage.setItem(localKey(userId, docId), JSON.stringify(battle));
-    } catch {
-      // localStorage unavailable — continue in-memory
-    }
+  if (!isSupabaseReady()) {
+    saveToLocalStorage(userId, docId, battle);
     return;
   }
-
   try {
     await supabase.from('battle_sessions').upsert({
       user_id: userId,
@@ -61,7 +59,15 @@ export async function saveBattle(
       answers: battle.answers,
       results: battle.results,
     });
-  } catch (err) {
-    console.warn('[battleService] Save failed:', err);
+  } catch {
+    saveToLocalStorage(userId, docId, battle);
+  }
+}
+
+function saveToLocalStorage(userId: string, docId: string, battle: BattleState): void {
+  try {
+    localStorage.setItem(localKey(userId, docId), JSON.stringify(battle));
+  } catch {
+    // localStorage unavailable
   }
 }

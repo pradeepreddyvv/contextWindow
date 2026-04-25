@@ -1,13 +1,14 @@
 import type { AppMode } from '../types';
-import { isMockMode } from '../lib/supabase';
 
 interface HeaderProps {
   mode: AppMode;
+  userName: string;
   onSetMode: (mode: AppMode) => void;
+  onSignOut: () => void;
   onReset: () => void;
 }
 
-export default function Header({ mode, onSetMode, onReset }: HeaderProps) {
+export default function Header({ mode, userName, onSetMode, onSignOut, onReset }: HeaderProps) {
   return (
     <header style={{
       display: 'flex',
@@ -52,9 +53,29 @@ export default function Header({ mode, onSetMode, onReset }: HeaderProps) {
         </nav>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        {isMockMode() && <span className="badge badge--mock">Mock Mode</span>}
+        {userName && (
+          <span style={{
+            fontFamily: 'var(--font-ui)',
+            fontSize: '0.7rem',
+            color: 'var(--color-ink)',
+            letterSpacing: '0.03em',
+          }}>
+            {userName}
+          </span>
+        )}
         <button onClick={onReset} style={{ fontSize: '0.65rem', padding: '0.3rem 0.6rem' }}>
           Reset
+        </button>
+        <button
+          onClick={onSignOut}
+          style={{
+            fontSize: '0.65rem',
+            padding: '0.3rem 0.6rem',
+            background: 'transparent',
+            color: 'var(--color-muted)',
+          }}
+        >
+          Sign Out
         </button>
       </div>
     </header>

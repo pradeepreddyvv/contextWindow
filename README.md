@@ -100,6 +100,16 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
 5. Restart the dev server — the Mock Mode badge will disappear.
 
+**📚 Detailed Setup Guides:**
+- **[QUICK_START.md](./QUICK_START.md)** - Get up and running in 3 steps
+- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Complete Supabase configuration guide
+- **[SIGN_UP_FIX_SUMMARY.md](./SIGN_UP_FIX_SUMMARY.md)** - Troubleshooting sign-up issues
+
+**🧪 Test Your Setup:**
+```bash
+npm run test:supabase  # Verify Supabase connection
+```
+
 ---
 
 ## Running Tests

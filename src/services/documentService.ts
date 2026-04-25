@@ -1,11 +1,9 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import { DOCUMENT } from './mockData';
 import type { Document } from '../types';
 
 export async function getDocument(docId?: string): Promise<Document> {
-  if (isMockMode() || !supabase) {
-    return DOCUMENT;
-  }
+  if (!isSupabaseReady()) return DOCUMENT;
 
   try {
     const query = supabase.from('documents').select('*');
@@ -28,4 +26,19 @@ export async function getDocument(docId?: string): Promise<Document> {
     console.warn('[documentService] Unexpected error, falling back to mock:', err);
     return DOCUMENT;
   }
+}
+
+export function validateDocument(doc: Document): boolean {
+  return !!(
+    doc.id &&
+    doc.title &&
+    Array.isArray(doc.sections) &&
+    doc.sections.length > 0 &&
+    doc.sections.every(
+      (s) =>
+        s.heading &&
+        s.body &&
+        Array.isArray(s.provocations)
+    )
+  );
 }

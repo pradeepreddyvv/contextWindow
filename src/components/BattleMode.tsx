@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { AppState } from '../types';
 import type { Action } from '../reducer';
-import { isMockMode } from '../lib/supabase';
+import { isSupabaseReady } from '../lib/supabase';
 import BattleProgressBar from './BattleProgressBar';
 import AuthorPhase from './AuthorPhase';
 import BattlePhaseComponent from './BattlePhase';
@@ -60,6 +60,7 @@ export default function BattleMode({ state, dispatch }: BattleModeProps) {
             draftQuestion={state.draftQuestion}
             questionStatus={state.questionStatus}
             acceptedQuestions={state.acceptedQuestions}
+            userName={state.userName}
             onSetDraft={(t) => dispatch({ type: 'SET_DRAFT_QUESTION', payload: t })}
             onSetStatus={(s) => dispatch({ type: 'SET_QUESTION_STATUS', payload: s })}
             onAccept={(q) => dispatch({ type: 'ADD_ACCEPTED_QUESTION', payload: q })}
@@ -152,7 +153,7 @@ export default function BattleMode({ state, dispatch }: BattleModeProps) {
           Solo Battle
         </button>
 
-        {!isMockMode() && (
+        {isSupabaseReady() && (
           <>
             <div style={{
               display: 'flex',
@@ -208,7 +209,7 @@ export default function BattleMode({ state, dispatch }: BattleModeProps) {
           </>
         )}
 
-        {isMockMode() && (
+        {!isSupabaseReady() && (
           <p style={{
             fontFamily: 'var(--font-ui)',
             fontSize: '0.65rem',

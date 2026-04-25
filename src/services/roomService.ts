@@ -1,4 +1,4 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import type { BattleRoom, BattleRoomParticipant, BattleRoomQuestion, ParticipantResult } from '../types';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
@@ -25,7 +25,7 @@ export async function createRoom(
   questionCount: number,
   topic: string
 ): Promise<BattleRoom> {
-  if (isMockMode() || !supabase) {
+  if (!isSupabaseReady() || !supabase) {
     throw new Error('Battle Rooms require Supabase. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
 

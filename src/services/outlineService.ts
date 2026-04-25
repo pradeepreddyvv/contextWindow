@@ -1,4 +1,4 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase, isSupabaseReady } from '../lib/supabase';
 import type { OutlineState } from '../types';
 
 const DEFAULT_OUTLINE: OutlineState = {
@@ -16,14 +16,7 @@ function localKey(userId: string, docId: string) {
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function loadOutline(userId: string, docId: string): Promise<OutlineState> {
-  if (isMockMode() || !supabase) {
-    try {
-      const raw = localStorage.getItem(localKey(userId, docId));
-      return raw ? (JSON.parse(raw) as OutlineState) : { ...DEFAULT_OUTLINE };
-    } catch {
-      return { ...DEFAULT_OUTLINE };
-    }
-  }
+  if (!isSupabaseReady()) return loadFromLocalStorage(userId, docId);
 
   try {
     const { data, error } = await supabase
@@ -42,6 +35,16 @@ export async function loadOutline(userId: string, docId: string): Promise<Outlin
       explainText: data.explain_text ?? '',
       explainRound: data.explain_round ?? 0,
     };
+  } catch (err) {
+    console.warn('[outlineService] Supabase load failed, falling back to localStorage:', err);
+    return loadFromLocalStorage(userId, docId);
+  }
+}
+
+function loadFromLocalStorage(userId: string, docId: string): OutlineState {
+  try {
+    const raw = localStorage.getItem(localKey(userId, docId));
+    return raw ? (JSON.parse(raw) as OutlineState) : { ...DEFAULT_OUTLINE };
   } catch {
     return { ...DEFAULT_OUTLINE };
   }
@@ -52,19 +55,13 @@ export async function saveOutline(
   docId: string,
   outline: OutlineState
 ): Promise<void> {
-  // Debounce: cancel any pending save and schedule a new one
   if (saveTimer) clearTimeout(saveTimer);
 
   saveTimer = setTimeout(async () => {
-    if (isMockMode() || !supabase) {
-      try {
-        localStorage.setItem(localKey(userId, docId), JSON.stringify(outline));
-      } catch {
-        // localStorage unavailable — continue in-memory
-      }
+    if (!isSupabaseReady()) {
+      saveToLocalStorage(userId, docId, outline);
       return;
     }
-
     try {
       await supabase.from('outlines').upsert({
         user_id: userId,
@@ -76,8 +73,16 @@ export async function saveOutline(
         explain_round: outline.explainRound,
         updated_at: new Date().toISOString(),
       });
-    } catch (err) {
-      console.warn('[outlineService] Save failed:', err);
+    } catch {
+      saveToLocalStorage(userId, docId, outline);
     }
   }, 300);
+}
+
+function saveToLocalStorage(userId: string, docId: string, outline: OutlineState): void {
+  try {
+    localStorage.setItem(localKey(userId, docId), JSON.stringify(outline));
+  } catch {
+    // localStorage unavailable
+  }
 }

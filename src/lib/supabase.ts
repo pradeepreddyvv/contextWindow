@@ -3,11 +3,14 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase: SupabaseClient | null =
-  supabaseUrl && supabaseAnonKey
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
+let _supabase: SupabaseClient | null = null;
 
-export function isMockMode(): boolean {
-  return supabase === null;
+if (supabaseUrl && supabaseAnonKey) {
+  _supabase = createClient(supabaseUrl, supabaseAnonKey);
+}
+
+export const supabase = _supabase as SupabaseClient;
+
+export function isSupabaseReady(): boolean {
+  return _supabase !== null;
 }
