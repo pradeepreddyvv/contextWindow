@@ -1,0 +1,13 @@
+{
+  "name": "Lens Output Question Check",
+  "version": "1.0.0",
+  "description": "Verifies that lens output and provocation strings always end with '?' and contain no statements, answers, or summaries.",
+  "when": {
+    "type": "postToolUse",
+    "toolTypes": ["write"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A component or service file was just edited. If it renders or returns lens output (lensService, explainBackService, or provocation data), verify that every string ends with '?' and contains no statements, answers, or summaries. The AI must only ask questions in these contexts — never provide content the student should produce. Reference: .kiro/steering/guardrails.md and .kiro/specs/provoke/requirements.md"
+  }
+}

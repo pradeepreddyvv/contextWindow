@@ -1,0 +1,13 @@
+{
+  "name": "Guardrail Integration Check",
+  "version": "1.0.0",
+  "description": "Verifies that all AI output paths in service files pass through guardrailService.checkContent() before being returned to the UI.",
+  "when": {
+    "type": "postToolUse",
+    "toolTypes": ["write"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A service file was just edited. Verify that all AI output paths in this file pass through guardrailService.checkContent() before being returned to the UI. If any path bypasses the guardrail, flag it. The guardrail must check for forbidden phrases ('the answer is', 'correct answer', 'final answer', 'you should write', 'the correct response') and verbatim student text continuation. Reference: .kiro/steering/guardrails.md"
+  }
+}
