@@ -66,7 +66,8 @@ textarea {
   width: 100%;
 }
 
-textarea:focus {
+textarea:focus,
+input:focus {
   outline: 2px solid var(--color-rust);
   outline-offset: 1px;
 }

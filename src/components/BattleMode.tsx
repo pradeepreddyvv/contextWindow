@@ -45,6 +45,7 @@ export default function BattleMode({ state, dispatch }: BattleModeProps) {
           draftQuestion={state.draftQuestion}
           questionStatus={state.questionStatus}
           acceptedQuestions={state.acceptedQuestions}
+          userName={state.userName}
           onSetDraft={(t) => dispatch({ type: 'SET_DRAFT_QUESTION', payload: t })}
           onSetStatus={(s) => dispatch({ type: 'SET_QUESTION_STATUS', payload: s })}
           onAccept={(q) => dispatch({ type: 'ADD_ACCEPTED_QUESTION', payload: q })}

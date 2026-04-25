@@ -18,7 +18,7 @@ export type Action =
   | { type: 'SET_CURRENT_ANSWER_IDX'; payload: number }
   | { type: 'SET_BATTLE_RESULTS'; payload: BattleResult[] }
   | { type: 'SET_BATTLE_PHASE'; payload: BattlePhase }
-  | { type: 'SET_USER'; payload: string }
+  | { type: 'SET_USER'; payload: { id: string; name: string } }
   | { type: 'RESET_BATTLE' }
   | { type: 'RESET_SESSION' };
 
@@ -39,7 +39,8 @@ export const initialState: AppState = {
   myAnswers: {},
   currentAnswerIdx: 0,
   battleResults: null,
-  userId: 'mock-user',
+  userId: '',
+  userName: '',
 };
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -86,7 +87,7 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SET_BATTLE_PHASE':
       return { ...state, battlePhase: action.payload };
     case 'SET_USER':
-      return { ...state, userId: action.payload };
+      return { ...state, userId: action.payload.id, userName: action.payload.name };
     case 'RESET_BATTLE':
       return { ...state, battlePhase: 1, acceptedQuestions: [], myAnswers: {}, currentAnswerIdx: 0, battleResults: null, draftQuestion: '', questionStatus: null };
     case 'RESET_SESSION':

@@ -7,6 +7,7 @@ interface AuthorPhaseProps {
   draftQuestion: string;
   questionStatus: { ok: boolean; msg: string } | null;
   acceptedQuestions: BattleQuestion[];
+  userName: string;
   onSetDraft: (text: string) => void;
   onSetStatus: (status: { ok: boolean; msg: string } | null) => void;
   onAccept: (q: BattleQuestion) => void;
@@ -17,6 +18,7 @@ export default function AuthorPhase({
   draftQuestion,
   questionStatus,
   acceptedQuestions,
+  userName,
   onSetDraft,
   onSetStatus,
   onAccept,
@@ -29,7 +31,7 @@ export default function AuthorPhase({
     const docContext = DOCUMENT.sections.map((s) => s.body).join('\n');
     const result = await evaluateQuestion(draftQuestion, docContext);
     if (result.accepted) {
-      onAccept({ text: draftQuestion.trim(), author: 'You' });
+      onAccept({ text: draftQuestion.trim(), author: userName || 'You' });
     }
     onSetStatus({ ok: result.accepted, msg: result.message });
     setLoading(false);
