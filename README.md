@@ -4,11 +4,6 @@
 
 Scaffold is a document-centric active-learning web app built for the Kiro Spark Challenge. Students engage a study document through four AI-powered lenses that provoke thinking, then prove their understanding in a three-phase Battle Mode that rewards reasoning rigor over recall.
 
-**Research basis:**
-- Advait Sarkar — ["How to Stop AI from Killing Your Critical Thinking"](https://www.ted.com/talks/advait_sarkar_how_to_stop_ai_from_killing_your_critical_thinking) (TED AI Vienna 2025)
-- Microsoft Research — [Promptions: Ephemeral UI for Prompting](https://github.com/microsoft/Promptions)
-- Manu Kapur — Productive Failure (Cohen's d = 0.36–0.58 vs direct instruction)
-
 ---
 
 ## What This App Does
