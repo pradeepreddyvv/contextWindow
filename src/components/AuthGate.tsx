@@ -73,7 +73,7 @@ export default function AuthGate({ user, loading, error, onSignIn, onSignUp, chi
           marginBottom: '0.25rem',
           textAlign: 'center',
         }}>
-          Scaffold
+          ASK
         </h1>
         <p style={{
           fontFamily: 'var(--font-body)',

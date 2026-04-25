@@ -15,7 +15,11 @@ function loadPersistedState() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      return { ...initialState, ...parsed };
+      const merged = { ...initialState, ...parsed };
+      if (merged.roomState) {
+        merged.roomState = { ...merged.roomState, error: null };
+      }
+      return merged;
     }
   } catch {
     // ignore

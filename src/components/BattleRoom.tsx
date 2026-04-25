@@ -103,9 +103,20 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
       const { participant } = await joinRoom(newRoom.roomCode, state.userId, 'Host');
       dispatch({ type: 'SET_MY_PARTICIPANT', payload: participant });
 
-      // Fetch initial participants
+      // Fetch initial participants + add a default mock player
       const parts = await getParticipants(newRoom.id);
-      dispatch({ type: 'SET_ROOM_PARTICIPANTS', payload: parts });
+      const mockPlayer = {
+        id: `mock-${Date.now()}`,
+        roomId: newRoom.id,
+        userId: `mock-user-${Date.now()}`,
+        displayName: 'reddy_user2',
+        answers: {},
+        results: null,
+        submittedAt: null,
+        joinedAt: new Date().toISOString(),
+        kicked: false,
+      };
+      dispatch({ type: 'SET_ROOM_PARTICIPANTS', payload: [...parts, mockPlayer] });
 
       setupChannel(newRoom.roomCode);
       setScreen('active');

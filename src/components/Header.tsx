@@ -25,7 +25,7 @@ export default function Header({ mode, userName, onSetMode, onSignOut, onReset }
           fontWeight: 700,
           color: 'var(--color-ink)',
         }}>
-          Scaffold
+          ASK
         </h1>
         <nav style={{ display: 'flex', gap: '0.25rem' }}>
           <button
