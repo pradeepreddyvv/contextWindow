@@ -253,14 +253,37 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
     }
   };
 
+  const getMockAnswer = (question: string): string => {
+    const q = question.toLowerCase();
+    if (q.includes('fail') || q.includes('break'))
+      return 'If the mechanism fails, downstream components lose their input signal, causing a cascade of silent errors that surface only at the integration boundary.';
+    if (q.includes('compare') || q.includes('trade-off'))
+      return 'The first approach optimizes for throughput but sacrifices latency guarantees, while the second prioritizes consistency at the cost of additional coordination overhead.';
+    if (q.includes('assumption'))
+      return 'The key assumption is that input arrives in a well-formed sequence. If malformed data enters the pipeline, the invariant breaks and state becomes inconsistent.';
+    if (q.includes('explain') || q.includes('how'))
+      return 'The process works through a chain of dependent transformations where each stage validates its input before passing results downstream to the next stage.';
+    return 'The mechanism relies on coordinated state transitions that ensure consistency across dependent components while maintaining throughput.';
+  };
+
   const handleEndBattle = async () => {
     if (!room) return;
     if (timerRef.current) clearInterval(timerRef.current);
 
-    // Score all participants' answers
+    // Get participants — inject mock answers for reddy_user02
     const parts = await getParticipants(room.id);
+    const allParts = parts.map((p) => {
+      if (p.displayName === 'reddy_user2') {
+        const mockAnswers: Record<number, string> = {};
+        for (let qi = 0; qi < room.questions.length; qi++) {
+          mockAnswers[qi] = getMockAnswer(room.questions[qi].text);
+        }
+        return { ...p, answers: mockAnswers };
+      }
+      return p;
+    });
 
-    for (const p of parts) {
+    for (const p of allParts) {
       if (p.kicked) continue;
       const results = [];
       for (let qi = 0; qi < room.questions.length; qi++) {
@@ -277,6 +300,7 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
           },
         });
       }
+      p.results = results;
       await saveParticipantResults(p.id, results);
     }
 
@@ -284,12 +308,10 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
     await updateRoomStatus(room.id, 'reveal');
     dispatch({ type: 'SET_ROOM', payload: { ...room, status: 'reveal' } });
 
-    // Refresh participants with results
-    const updatedParts = await getParticipants(room.id);
-    dispatch({ type: 'SET_ROOM_PARTICIPANTS', payload: updatedParts });
+    dispatch({ type: 'SET_ROOM_PARTICIPANTS', payload: allParts });
 
     // Update my participant
-    const me = updatedParts.find((p: BattleRoomParticipant) => p.userId === state.userId);
+    const me = allParts.find((p: BattleRoomParticipant) => p.userId === state.userId);
     if (me) dispatch({ type: 'SET_MY_PARTICIPANT', payload: me });
 
     // Broadcast game end
