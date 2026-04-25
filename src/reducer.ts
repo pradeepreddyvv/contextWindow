@@ -1,4 +1,4 @@
-import type { AppState, LensType, AppMode, BattlePhase, Highlight, PinnedQuestion, BattleQuestion, BattleResult } from './types';
+import type { AppState, LensType, AppMode, BattlePhase, Highlight, PinnedQuestion, BattleQuestion, BattleResult, BattleRoom, BattleRoomParticipant, RoomRole, RoomState } from './types';
 
 export type Action =
   | { type: 'SET_MODE'; payload: AppMode }
@@ -20,7 +20,29 @@ export type Action =
   | { type: 'SET_BATTLE_PHASE'; payload: BattlePhase }
   | { type: 'SET_USER'; payload: string }
   | { type: 'RESET_BATTLE' }
-  | { type: 'RESET_SESSION' };
+  | { type: 'RESET_SESSION' }
+  // Battle Rooms (Multiplayer)
+  | { type: 'SET_ROOM'; payload: BattleRoom }
+  | { type: 'SET_ROOM_ROLE'; payload: RoomRole }
+  | { type: 'SET_ROOM_PARTICIPANTS'; payload: BattleRoomParticipant[] }
+  | { type: 'SET_MY_PARTICIPANT'; payload: BattleRoomParticipant }
+  | { type: 'SET_ROOM_TIMER'; payload: number | null }
+  | { type: 'SET_ROOM_QUESTION_IDX'; payload: number }
+  | { type: 'SET_ROOM_ERROR'; payload: string | null }
+  | { type: 'SET_DISPLAY_NAME'; payload: string }
+  | { type: 'SET_ROOM_ANSWER'; payload: { idx: number; text: string } }
+  | { type: 'LEAVE_ROOM' };
+
+const initialRoomState: RoomState = {
+  room: null,
+  role: null,
+  participants: [],
+  myParticipant: null,
+  timerRemaining: null,
+  currentQuestionIdx: 0,
+  error: null,
+  displayName: '',
+};
 
 export const initialState: AppState = {
   mode: 'study',
@@ -40,6 +62,7 @@ export const initialState: AppState = {
   currentAnswerIdx: 0,
   battleResults: null,
   userId: 'mock-user',
+  roomState: initialRoomState,
 };
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -91,6 +114,39 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, battlePhase: 1, acceptedQuestions: [], myAnswers: {}, currentAnswerIdx: 0, battleResults: null, draftQuestion: '', questionStatus: null };
     case 'RESET_SESSION':
       return { ...initialState };
+    // Battle Rooms (Multiplayer)
+    case 'SET_ROOM':
+      return { ...state, roomState: { ...state.roomState, room: action.payload, error: null } };
+    case 'SET_ROOM_ROLE':
+      return { ...state, roomState: { ...state.roomState, role: action.payload } };
+    case 'SET_ROOM_PARTICIPANTS':
+      return { ...state, roomState: { ...state.roomState, participants: action.payload } };
+    case 'SET_MY_PARTICIPANT':
+      return { ...state, roomState: { ...state.roomState, myParticipant: action.payload } };
+    case 'SET_ROOM_TIMER':
+      return { ...state, roomState: { ...state.roomState, timerRemaining: action.payload } };
+    case 'SET_ROOM_QUESTION_IDX':
+      return { ...state, roomState: { ...state.roomState, currentQuestionIdx: action.payload } };
+    case 'SET_ROOM_ERROR':
+      return { ...state, roomState: { ...state.roomState, error: action.payload } };
+    case 'SET_DISPLAY_NAME':
+      return { ...state, roomState: { ...state.roomState, displayName: action.payload } };
+    case 'SET_ROOM_ANSWER': {
+      const mp = state.roomState.myParticipant;
+      if (!mp) return state;
+      return {
+        ...state,
+        roomState: {
+          ...state.roomState,
+          myParticipant: {
+            ...mp,
+            answers: { ...mp.answers, [action.payload.idx]: action.payload.text },
+          },
+        },
+      };
+    }
+    case 'LEAVE_ROOM':
+      return { ...state, roomState: initialRoomState };
     default:
       return state;
   }
