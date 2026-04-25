@@ -122,4 +122,4 @@ npm test -- --run  # Run all tests
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE) — an [OSI-approved](https://opensource.org/licenses) open source license.
