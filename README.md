@@ -45,6 +45,13 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
+### Demo Login
+
+| Field | Value |
+|---|---|
+| Email | `pradeep@asu.edu` |
+| Password | `123456` |
+
 ---
 
 ## Environment Variables
