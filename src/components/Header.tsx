@@ -1,5 +1,4 @@
 import type { AppMode } from '../types';
-import { isMockMode } from '../lib/supabase';
 
 interface HeaderProps {
   mode: AppMode;
@@ -54,7 +53,6 @@ export default function Header({ mode, userName, onSetMode, onSignOut, onReset }
         </nav>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        {isMockMode() && <span className="badge badge--mock">Mock Mode</span>}
         {userName && (
           <span style={{
             fontFamily: 'var(--font-ui)',

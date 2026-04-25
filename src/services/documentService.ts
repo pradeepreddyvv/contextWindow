@@ -1,13 +1,8 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { DOCUMENT } from './mockData';
 import type { Document } from '../types';
 
 export async function getDocument(docId?: string): Promise<Document> {
-  // Mock mode: no Supabase configured
-  if (isMockMode() || !supabase) {
-    return DOCUMENT;
-  }
-
   try {
     const query = supabase.from('documents').select('*');
     const { data, error } = docId

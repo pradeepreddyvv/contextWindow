@@ -1,4 +1,4 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { BattleState } from '../types';
 
 function localKey(userId: string, docId: string) {
@@ -6,11 +6,6 @@ function localKey(userId: string, docId: string) {
 }
 
 export async function loadBattle(userId: string, docId: string): Promise<BattleState | null> {
-  // Mock mode or offline: use localStorage
-  if (isMockMode() || !supabase) {
-    return loadFromLocalStorage(userId, docId);
-  }
-
   try {
     const { data, error } = await supabase
       .from('battle_sessions')
@@ -50,12 +45,6 @@ export async function saveBattle(
   docId: string,
   battle: BattleState
 ): Promise<void> {
-  // Mock mode or offline: use localStorage
-  if (isMockMode() || !supabase) {
-    saveToLocalStorage(userId, docId, battle);
-    return;
-  }
-
   try {
     await supabase.from('battle_sessions').upsert({
       user_id: userId,

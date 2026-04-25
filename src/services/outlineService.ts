@@ -1,4 +1,4 @@
-import { supabase, isMockMode } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { OutlineState } from '../types';
 
 const DEFAULT_OUTLINE: OutlineState = {
@@ -16,11 +16,6 @@ function localKey(userId: string, docId: string) {
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function loadOutline(userId: string, docId: string): Promise<OutlineState> {
-  // Mock mode or offline: use localStorage
-  if (isMockMode() || !supabase) {
-    return loadFromLocalStorage(userId, docId);
-  }
-
   try {
     const { data, error } = await supabase
       .from('outlines')
@@ -63,12 +58,6 @@ export async function saveOutline(
   if (saveTimer) clearTimeout(saveTimer);
 
   saveTimer = setTimeout(async () => {
-    // Mock mode or offline: use localStorage
-    if (isMockMode() || !supabase) {
-      saveToLocalStorage(userId, docId, outline);
-      return;
-    }
-
     try {
       await supabase.from('outlines').upsert({
         user_id: userId,
