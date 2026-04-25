@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { BattleQuestion } from '../types';
 import { evaluateQuestion } from '../services/questionEvaluatorService';
 import { DOCUMENT } from '../services/mockData';
+import QuestionPool from './QuestionPool';
 
 interface AuthorPhaseProps {
   draftQuestion: string;
@@ -90,30 +91,7 @@ export default function AuthorPhase({
         )}
       </div>
 
-      <div>
-        <p className="label" style={{ marginBottom: '0.5rem' }}>
-          Question Pool ({acceptedQuestions.length} / 3)
-        </p>
-        {acceptedQuestions.length === 0 ? (
-          <p style={{ color: 'var(--color-muted)', fontSize: '0.8rem', fontStyle: 'italic' }}>
-            Submit 3 accepted questions to proceed.
-          </p>
-        ) : (
-          acceptedQuestions.map((q, i) => (
-            <div key={i} style={{
-              padding: '0.5rem',
-              marginBottom: '0.5rem',
-              borderLeft: '3px solid var(--color-success)',
-              background: 'rgba(45,106,79,0.06)',
-              borderRadius: '0 4px 4px 0',
-              fontSize: '0.8rem',
-              fontFamily: 'var(--font-body)',
-            }}>
-              {q.text}
-            </div>
-          ))
-        )}
-      </div>
+      <QuestionPool acceptedQuestions={acceptedQuestions} />
     </div>
   );
 }
