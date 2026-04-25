@@ -20,7 +20,7 @@ export function isValidRoomCode(code: string): boolean {
 // ── Room CRUD ──
 
 export async function createRoom(
-  hostId: string,
+  _hostId: string,
   documentId: string | null,
   questionCount: number,
   topic: string
@@ -28,6 +28,10 @@ export async function createRoom(
   if (!isSupabaseReady() || !supabase) {
     throw new Error('Battle Rooms require Supabase. Please configure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
   }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('You must be signed in to create a room.');
+  const hostId = user.id;
 
   // Generate unique room code with retry
   let roomCode = generateRoomCode();
@@ -76,12 +80,16 @@ export async function findRoomByCode(roomCode: string): Promise<BattleRoom | nul
 
 export async function joinRoom(
   roomCode: string,
-  userId: string,
+  _userId: string,
   displayName: string
 ): Promise<{ room: BattleRoom; participant: BattleRoomParticipant }> {
   if (!supabase) {
     throw new Error('Battle Rooms require Supabase.');
   }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('You must be signed in to join a room.');
+  const userId = user.id;
 
   const room = await findRoomByCode(roomCode);
   if (!room) throw new Error('Room not found. Check the code and try again.');

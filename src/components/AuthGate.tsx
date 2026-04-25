@@ -12,8 +12,8 @@ interface AuthGateProps {
 
 export default function AuthGate({ user, loading, error, onSignIn, onSignUp, children }: AuthGateProps) {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('pradeep@asu.edu');
+  const [password, setPassword] = useState('123456');
   const [displayName, setDisplayName] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
