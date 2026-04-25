@@ -59,20 +59,9 @@ CREATE POLICY "Host can update their rooms"
   USING (auth.uid() = host_id);
 
 -- Policies for battle_room_participants
-CREATE POLICY "Participants can read room participants"
+CREATE POLICY "Authenticated users can read participants"
   ON public.battle_room_participants FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.battle_room_participants p
-      WHERE p.room_id = battle_room_participants.room_id
-        AND p.user_id = auth.uid()
-    )
-    OR EXISTS (
-      SELECT 1 FROM public.battle_rooms r
-      WHERE r.id = battle_room_participants.room_id
-        AND r.host_id = auth.uid()
-    )
-  );
+  USING (auth.uid() IS NOT NULL);
 
 CREATE POLICY "Users can join rooms"
   ON public.battle_room_participants FOR INSERT
