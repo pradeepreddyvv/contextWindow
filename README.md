@@ -23,11 +23,14 @@ The AI **never** summarizes, answers, or rewrites student text. Every output is 
 |---|---|
 | Frontend | React + TypeScript + Vite |
 | Backend | Supabase (Postgres + Auth) |
+| AI | Anthropic Claude API (optional) |
 | Styling | CSS custom properties (no UI framework) |
 | Testing | Vitest + React Testing Library + fast-check |
 | Deploy | Vercel |
 
-**Mock Mode:** The app runs fully without Supabase credentials. All AI responses are deterministic hardcoded data. A "Mock Mode" badge appears in the header.
+**Mock Mode:** The app runs fully without Supabase or Anthropic credentials. All AI responses are deterministic hardcoded data. A "Mock Mode" badge appears in the header.
+
+**LLM Mode:** When an Anthropic API key is provided, the app uses real-time Claude AI for generating lens questions, provocations, question evaluation, and answer scoring — all constrained by pedagogical guardrails.
 
 ---
 
@@ -70,7 +73,7 @@ npm create vite@latest . -- --template react-ts
 
 # 3. Install dependencies
 npm install
-npm install @supabase/supabase-js
+npm install @supabase/supabase-js @anthropic-ai/sdk
 npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event fast-check jsdom
 
 # 4. Copy the env example (no values needed for Mock Mode)
@@ -109,6 +112,31 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```bash
 npm run test:supabase  # Verify Supabase connection
 ```
+
+---
+
+## Anthropic API Setup (Optional)
+
+Only needed if you want real-time AI generation instead of mock data.
+
+1. Get an API key from [console.anthropic.com](https://console.anthropic.com)
+2. Add it to `.env`:
+
+```env
+VITE_ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+3. Restart the dev server — AI services will now use Claude Sonnet 4
+
+**What changes with LLM mode:**
+- Lens questions are generated based on actual document content
+- Explain Back provocations target specific gaps in student explanations
+- Question evaluation uses semantic understanding, not just keyword matching
+- Answer scoring evaluates reasoning quality with detailed feedback
+
+**Guardrails still apply:** All LLM output passes through `guardrailService` before reaching students. If the LLM violates constraints, the app falls back to mock data.
+
+See `LLM_INTEGRATION.md` for detailed documentation.
 
 ---
 
@@ -157,9 +185,11 @@ contextWindow/
 │   │   └── RevealPhase.tsx        ← Phase 3: scores + peer answers
 │   ├── services/
 │   │   ├── mockData.ts            ← ALL hardcoded data (shared contract)
+│   │   ├── llmService.ts          ← Anthropic Claude API client + streaming
 │   │   ├── guardrailService.ts    ← blocks forbidden AI output (synchronous)
-│   │   ├── lensService.ts         ← generates lens questions
+│   │   ├── lensService.ts         ← generates lens questions (mock or LLM)
 │   │   ├── explainBackService.ts  ← generates provocations from student text
+│   │   ├── streamingExplainBackService.ts ← real-time streaming provocations
 │   │   ├── questionEvaluatorService.ts ← accepts/rejects student questions
 │   │   ├── answerScorerService.ts ← scores answers on reasoning rigor
 │   │   ├── documentService.ts     ← fetches document (Supabase or mock)
@@ -167,7 +197,8 @@ contextWindow/
 │   │   └── battleService.ts       ← saves/loads battle session
 │   ├── hooks/
 │   │   ├── useAuth.ts             ← Supabase auth or mock user
-│   │   └── useLocalStorage.ts     ← safe localStorage hook
+│   │   ├── useLocalStorage.ts     ← safe localStorage hook
+│   │   └── useStreamingLLM.ts     ← React hook for streaming state management
 │   └── styles/
 │       ├── tokens.css             ← CSS custom properties (palette, fonts, layout)
 │       └── global.css

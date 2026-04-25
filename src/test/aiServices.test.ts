@@ -97,7 +97,7 @@ describe('questionEvaluatorService', () => {
     const recallQuestions = [
       'What is useEffect in React exactly?',
       'What are the rules of hooks in React?',
-      'Define the dependency array in useEffect clearly?',
+      'Define the dependency array in useEffect?',
       'List the lifecycle methods in React class components?',
       'Name the three phases of React component lifecycle?',
     ];

@@ -1,6 +1,5 @@
-import { MOCK_EXPLAIN_PROVOCATIONS } from './mockData';
 import { checkContent } from './guardrailService';
-import { isLLMAvailable, generateCompletion } from './llmService';
+import { isLLMAvailable, streamCompletion, type StreamCallbacks } from './llmService';
 
 const EXPLAIN_BACK_SYSTEM_PROMPT = `You are a Socratic tutor helping students articulate their understanding. Your role is to generate 1-3 provocative questions that expose gaps in their explanation.
 
@@ -19,34 +18,33 @@ Example provocations:
 
 Your goal: make the student think harder, not give them the answer.`;
 
-export async function generateProvocations(
+export async function streamProvocations(
   studentExplanation: string,
   documentContext: string,
-  round: number
+  round: number,
+  callbacks: StreamCallbacks
 ): Promise<string[]> {
   if (!studentExplanation.trim()) {
-    return ['Before I can challenge your thinking, I need to see it. Can you write your understanding of this section?'];
+    const fallback = ['Before I can challenge your thinking, I need to see it. Can you write your understanding of this section?'];
+    callbacks.onComplete?.(fallback.join('\n'));
+    return fallback;
   }
 
-  // Use mock data if LLM is not available
   if (!isLLMAvailable()) {
-    const provocations = MOCK_EXPLAIN_PROVOCATIONS[round % MOCK_EXPLAIN_PROVOCATIONS.length];
-    return provocations
-      .map((p) => {
-        const result = checkContent(p, studentExplanation);
-        return result.passed ? result.sanitizedText : null;
-      })
-      .filter((p): p is string => p !== null);
+    throw new Error('Streaming requires LLM to be available');
   }
 
-  // Real-time LLM generation
   try {
     const userPrompt = `Student's explanation (Round ${round + 1}):\n"${studentExplanation}"\n\nDocument context:\n${documentContext.slice(0, 2000)}\n\nGenerate 1-3 provocative questions that expose gaps in their reasoning. Do NOT provide corrections or answers.`;
 
-    const response = await generateCompletion(EXPLAIN_BACK_SYSTEM_PROMPT, userPrompt);
+    const fullText = await streamCompletion(
+      EXPLAIN_BACK_SYSTEM_PROMPT,
+      userPrompt,
+      callbacks
+    );
 
     // Parse questions from response
-    const provocations = response
+    const provocations = fullText
       .split('\n')
       .map((line) => line.trim())
       .filter((line) => line.length > 0)
@@ -61,14 +59,9 @@ export async function generateProvocations(
       })
       .filter((p): p is string => p !== null);
 
-    // Fallback to mock if validation fails
-    if (validated.length === 0) {
-      return MOCK_EXPLAIN_PROVOCATIONS[round % MOCK_EXPLAIN_PROVOCATIONS.length];
-    }
-
-    return validated.slice(0, 3); // Limit to 3 provocations
+    return validated.slice(0, 3);
   } catch (error) {
-    console.error('LLM generation failed, falling back to mock:', error);
-    return MOCK_EXPLAIN_PROVOCATIONS[round % MOCK_EXPLAIN_PROVOCATIONS.length];
+    callbacks.onError?.(error instanceof Error ? error : new Error(String(error)));
+    throw error;
   }
 }
