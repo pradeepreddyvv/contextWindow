@@ -1,0 +1,96 @@
+@import './tokens.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-border);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+button:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+textarea {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  background: white;
+  color: var(--color-ink);
+  resize: vertical;
+  width: 100%;
+}
+
+textarea:focus {
+  outline: 2px solid var(--color-rust);
+  outline-offset: 1px;
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  background: var(--color-muted);
+  color: var(--color-paper);
+}
+
+.badge--mock {
+  background: var(--color-rust);
+}

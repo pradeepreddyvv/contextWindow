@@ -1,0 +1,22 @@
+:root {
+  --color-paper: #F4EFE4;
+  --color-ink: #1B1A17;
+  --color-rust: #B54A1E;
+  --color-lens-watch: #2D6A4F;
+  --color-lens-prereq: #3D405B;
+  --color-lens-misc: #8B3A3A;
+  --color-lens-explain: #7B5E2A;
+  --color-muted: #6B6760;
+  --color-border: #D9D3C7;
+  --color-success: #2D6A4F;
+  --color-warning: #7B5E2A;
+  --color-error: #8B3A3A;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Newsreader', Georgia, serif;
+  --font-ui: 'JetBrains Mono', monospace;
+
+  --sidebar-width: 200px;
+  --outline-width: 280px;
+  --doc-max-width: 680px;
+}
