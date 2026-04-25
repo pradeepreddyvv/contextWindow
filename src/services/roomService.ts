@@ -21,7 +21,7 @@ export function isValidRoomCode(code: string): boolean {
 
 export async function createRoom(
   hostId: string,
-  documentId: string,
+  documentId: string | null,
   questionCount: number,
   topic: string
 ): Promise<BattleRoom> {

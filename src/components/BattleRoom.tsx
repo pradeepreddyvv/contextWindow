@@ -91,7 +91,7 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
 
   // ── Host Actions ──
 
-  const handleCreateRoom = async (documentId: string, questionCount: number, topic: string) => {
+  const handleCreateRoom = async (documentId: string | null, questionCount: number, topic: string) => {
     setLoading(true);
     dispatch({ type: 'SET_ROOM_ERROR', payload: null });
     try {

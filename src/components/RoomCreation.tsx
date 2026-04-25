@@ -3,7 +3,7 @@ import type { Document } from '../types';
 
 interface RoomCreationProps {
   document: Document;
-  onCreateRoom: (documentId: string, questionCount: number, topic: string) => void;
+  onCreateRoom: (documentId: string | null, questionCount: number, topic: string) => void;
   onCancel: () => void;
   loading: boolean;
   error: string | null;
@@ -144,7 +144,7 @@ export default function RoomCreation({ document, onCreateRoom, onCancel, loading
           Cancel
         </button>
         <button
-          onClick={() => onCreateRoom(document.id, questionCount, topic)}
+          onClick={() => onCreateRoom(null, questionCount, topic)}
           disabled={loading || !topic.trim()}
           className="btn-primary"
           style={{
