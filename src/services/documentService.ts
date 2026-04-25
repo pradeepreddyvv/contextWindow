@@ -3,6 +3,7 @@ import { DOCUMENT } from './mockData';
 import type { Document } from '../types';
 
 export async function getDocument(docId?: string): Promise<Document> {
+  // Mock mode: no Supabase configured
   if (isMockMode() || !supabase) {
     return DOCUMENT;
   }
@@ -28,4 +29,23 @@ export async function getDocument(docId?: string): Promise<Document> {
     console.warn('[documentService] Unexpected error, falling back to mock:', err);
     return DOCUMENT;
   }
+}
+
+/**
+ * Validates that a document has the required structure.
+ * Used for testing and data integrity checks.
+ */
+export function validateDocument(doc: Document): boolean {
+  return !!(
+    doc.id &&
+    doc.title &&
+    Array.isArray(doc.sections) &&
+    doc.sections.length > 0 &&
+    doc.sections.every(
+      (s) =>
+        s.heading &&
+        s.body &&
+        Array.isArray(s.provocations)
+    )
+  );
 }

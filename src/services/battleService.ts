@@ -6,13 +6,9 @@ function localKey(userId: string, docId: string) {
 }
 
 export async function loadBattle(userId: string, docId: string): Promise<BattleState | null> {
+  // Mock mode or offline: use localStorage
   if (isMockMode() || !supabase) {
-    try {
-      const raw = localStorage.getItem(localKey(userId, docId));
-      return raw ? (JSON.parse(raw) as BattleState) : null;
-    } catch {
-      return null;
-    }
+    return loadFromLocalStorage(userId, docId);
   }
 
   try {
@@ -33,7 +29,18 @@ export async function loadBattle(userId: string, docId: string): Promise<BattleS
       answers: data.answers ?? {},
       results: data.results ?? null,
     };
-  } catch {
+  } catch (err) {
+    console.warn('[battleService] Supabase load failed, falling back to localStorage:', err);
+    return loadFromLocalStorage(userId, docId);
+  }
+}
+
+function loadFromLocalStorage(userId: string, docId: string): BattleState | null {
+  try {
+    const raw = localStorage.getItem(localKey(userId, docId));
+    return raw ? (JSON.parse(raw) as BattleState) : null;
+  } catch (err) {
+    console.warn('[battleService] localStorage read failed:', err);
     return null;
   }
 }
@@ -43,12 +50,9 @@ export async function saveBattle(
   docId: string,
   battle: BattleState
 ): Promise<void> {
+  // Mock mode or offline: use localStorage
   if (isMockMode() || !supabase) {
-    try {
-      localStorage.setItem(localKey(userId, docId), JSON.stringify(battle));
-    } catch {
-      // localStorage unavailable — continue in-memory
-    }
+    saveToLocalStorage(userId, docId, battle);
     return;
   }
 
@@ -62,6 +66,15 @@ export async function saveBattle(
       results: battle.results,
     });
   } catch (err) {
-    console.warn('[battleService] Save failed:', err);
+    console.warn('[battleService] Supabase save failed, falling back to localStorage:', err);
+    saveToLocalStorage(userId, docId, battle);
+  }
+}
+
+function saveToLocalStorage(userId: string, docId: string, battle: BattleState): void {
+  try {
+    localStorage.setItem(localKey(userId, docId), JSON.stringify(battle));
+  } catch (err) {
+    console.warn('[battleService] localStorage write failed:', err);
   }
 }

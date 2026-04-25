@@ -16,13 +16,9 @@ function localKey(userId: string, docId: string) {
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function loadOutline(userId: string, docId: string): Promise<OutlineState> {
+  // Mock mode or offline: use localStorage
   if (isMockMode() || !supabase) {
-    try {
-      const raw = localStorage.getItem(localKey(userId, docId));
-      return raw ? (JSON.parse(raw) as OutlineState) : { ...DEFAULT_OUTLINE };
-    } catch {
-      return { ...DEFAULT_OUTLINE };
-    }
+    return loadFromLocalStorage(userId, docId);
   }
 
   try {
@@ -42,7 +38,18 @@ export async function loadOutline(userId: string, docId: string): Promise<Outlin
       explainText: data.explain_text ?? '',
       explainRound: data.explain_round ?? 0,
     };
-  } catch {
+  } catch (err) {
+    console.warn('[outlineService] Supabase load failed, falling back to localStorage:', err);
+    return loadFromLocalStorage(userId, docId);
+  }
+}
+
+function loadFromLocalStorage(userId: string, docId: string): OutlineState {
+  try {
+    const raw = localStorage.getItem(localKey(userId, docId));
+    return raw ? (JSON.parse(raw) as OutlineState) : { ...DEFAULT_OUTLINE };
+  } catch (err) {
+    console.warn('[outlineService] localStorage read failed:', err);
     return { ...DEFAULT_OUTLINE };
   }
 }
@@ -56,12 +63,9 @@ export async function saveOutline(
   if (saveTimer) clearTimeout(saveTimer);
 
   saveTimer = setTimeout(async () => {
+    // Mock mode or offline: use localStorage
     if (isMockMode() || !supabase) {
-      try {
-        localStorage.setItem(localKey(userId, docId), JSON.stringify(outline));
-      } catch {
-        // localStorage unavailable — continue in-memory
-      }
+      saveToLocalStorage(userId, docId, outline);
       return;
     }
 
@@ -77,7 +81,16 @@ export async function saveOutline(
         updated_at: new Date().toISOString(),
       });
     } catch (err) {
-      console.warn('[outlineService] Save failed:', err);
+      console.warn('[outlineService] Supabase save failed, falling back to localStorage:', err);
+      saveToLocalStorage(userId, docId, outline);
     }
   }, 300);
+}
+
+function saveToLocalStorage(userId: string, docId: string, outline: OutlineState): void {
+  try {
+    localStorage.setItem(localKey(userId, docId), JSON.stringify(outline));
+  } catch (err) {
+    console.warn('[outlineService] localStorage write failed:', err);
+  }
 }
