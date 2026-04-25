@@ -17,7 +17,7 @@ export async function evaluateQuestion(
     return { accepted: false, message: 'Your question should end with a question mark.' };
   }
 
-  const wordCount = trimmed.split(/\s+/).length;
+  const wordCount = trimmed.split(/\s+/).filter(Boolean).length;
   if (wordCount < 6) {
     return { accepted: false, message: 'Your question is too short. Ask something that requires explaining a mechanism or consequence.' };
   }
