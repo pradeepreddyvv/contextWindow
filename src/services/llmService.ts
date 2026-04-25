@@ -1,11 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { isMockMode } from '../lib/supabase';
 
 const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
 
 let anthropicClient: Anthropic | null = null;
 
-if (ANTHROPIC_API_KEY && !isMockMode()) {
+if (ANTHROPIC_API_KEY) {
   anthropicClient = new Anthropic({
     apiKey: ANTHROPIC_API_KEY,
     dangerouslyAllowBrowser: true, // For client-side usage
