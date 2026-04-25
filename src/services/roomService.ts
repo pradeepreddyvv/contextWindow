@@ -47,7 +47,7 @@ export async function createRoom(
     .from('battle_rooms')
     .insert({
       host_id: hostId,
-      document_id: documentId,
+      document_id: documentId || null,
       room_code: roomCode,
       status: 'lobby',
       question_count: questionCount,
