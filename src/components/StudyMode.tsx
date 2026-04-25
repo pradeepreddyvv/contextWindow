@@ -57,10 +57,10 @@ export default function StudyMode({ state, dispatch }: StudyModeProps) {
           document={document}
           engagedProvocations={state.engagedProvocations}
           onEngage={(id) => dispatch({ type: 'ENGAGE_PROVOCATION', payload: id })}
-          onHighlight={(text) =>
+          onHighlight={(text, note) =>
             dispatch({
               type: 'ADD_HIGHLIGHT',
-              payload: { id: `hl-${Date.now()}`, text, note: '' },
+              payload: { id: `hl-${Date.now()}`, text, note },
             })
           }
         />
