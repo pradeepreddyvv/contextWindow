@@ -1,6 +1,7 @@
-import type { AppState, LensType, AppMode, BattlePhase, Highlight, PinnedQuestion, BattleQuestion, BattleResult, BattleRoom, BattleRoomParticipant, RoomRole, RoomState } from './types';
+import type { AppState, LensType, AppMode, BattlePhase, Highlight, PinnedQuestion, BattleQuestion, BattleResult, BattleRoom, BattleRoomParticipant, RoomRole, RoomState, Document } from './types';
 
 export type Action =
+  | { type: 'SET_DOCUMENT'; payload: Document }
   | { type: 'SET_MODE'; payload: AppMode }
   | { type: 'SET_LENS'; payload: LensType }
   | { type: 'TOGGLE_HELP' }
@@ -63,11 +64,14 @@ export const initialState: AppState = {
   battleResults: null,
   userId: '',
   userName: '',
+  currentDocument: null,
   roomState: initialRoomState,
 };
 
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'SET_DOCUMENT':
+      return { ...state, currentDocument: action.payload };
     case 'SET_MODE':
       return { ...state, mode: action.payload };
     case 'SET_LENS':

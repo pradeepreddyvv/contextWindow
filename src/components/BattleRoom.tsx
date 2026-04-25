@@ -18,7 +18,6 @@ import {
 import { generateBattleQuestions } from '../services/aiQuestionGeneratorService';
 import { scoreAnswer } from '../services/answerScorerService';
 import { checkContent } from '../services/guardrailService';
-import { DOCUMENT } from '../services/mockData';
 import RoomCreation from './RoomCreation';
 import RoomJoin from './RoomJoin';
 import HostView from './HostView';
@@ -40,6 +39,8 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
 
   const { roomState } = state;
   const { room, role, participants, myParticipant } = roomState;
+  const document = state.currentDocument!;
+  const docContext = document.sections.map((s) => s.body).join('\n');
 
   // Cleanup on unmount
   useEffect(() => {
@@ -120,7 +121,7 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
     setStartingBattle(true);
     try {
       // Generate AI questions
-      const docText = DOCUMENT.sections.map((s) => s.body).join('\n');
+      const docText = docContext;
       const questions = await generateBattleQuestions(docText, room.topic, room.questionCount);
 
       // Save questions and transition to battle
@@ -247,7 +248,6 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
 
     // Score all participants' answers
     const parts = await getParticipants(room.id);
-    const docContext = DOCUMENT.sections.map((s) => s.body).join('\n');
 
     for (const p of parts) {
       if (p.kicked) continue;
@@ -378,6 +378,7 @@ export default function BattleRoom({ state, dispatch }: BattleRoomProps) {
   if (screen === 'create') {
     return (
       <RoomCreation
+        document={document}
         onCreateRoom={handleCreateRoom}
         onCancel={() => setScreen('menu')}
         loading={loading}

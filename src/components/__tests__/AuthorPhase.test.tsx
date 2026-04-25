@@ -16,6 +16,7 @@ function AuthorPhaseHarness({ onEnterBattle }: { onEnterBattle?: () => void }) {
 
   return (
     <AuthorPhase
+      documentText="useEffect lets you synchronize a component with an external system."
       draftQuestion={draft}
       questionStatus={status}
       acceptedQuestions={accepted}

@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { DOCUMENT } from '../services/mockData';
+import type { Document } from '../types';
 
 interface RoomCreationProps {
+  document: Document;
   onCreateRoom: (documentId: string, questionCount: number, topic: string) => void;
   onCancel: () => void;
   loading: boolean;
   error: string | null;
 }
 
-export default function RoomCreation({ onCreateRoom, onCancel, loading, error }: RoomCreationProps) {
+export default function RoomCreation({ document, onCreateRoom, onCancel, loading, error }: RoomCreationProps) {
   const [questionCount, setQuestionCount] = useState<number>(3);
-  const [topic, setTopic] = useState(DOCUMENT.title);
+  const [topic, setTopic] = useState(document.title);
 
   return (
     <div style={{
@@ -51,7 +52,7 @@ export default function RoomCreation({ onCreateRoom, onCancel, loading, error }:
           color: 'var(--color-ink)',
           background: 'rgba(0,0,0,0.02)',
         }}>
-          {DOCUMENT.title}
+          {document.title}
         </div>
       </div>
 
@@ -143,7 +144,7 @@ export default function RoomCreation({ onCreateRoom, onCancel, loading, error }:
           Cancel
         </button>
         <button
-          onClick={() => onCreateRoom(DOCUMENT.id, questionCount, topic)}
+          onClick={() => onCreateRoom(document.id, questionCount, topic)}
           disabled={loading || !topic.trim()}
           className="btn-primary"
           style={{

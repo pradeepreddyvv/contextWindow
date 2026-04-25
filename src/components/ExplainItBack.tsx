@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { generateProvocations } from '../services/explainBackService';
-import { DOCUMENT } from '../services/mockData';
 
 interface ExplainItBackProps {
+  documentText: string;
   explainText: string;
   explainRound: number;
   explainProvocations: string[];
@@ -12,6 +12,7 @@ interface ExplainItBackProps {
 }
 
 export default function ExplainItBack({
+  documentText,
   explainText,
   explainRound,
   explainProvocations,
@@ -24,8 +25,7 @@ export default function ExplainItBack({
 
   const handleSubmit = async () => {
     setLoading(true);
-    const docContext = DOCUMENT.sections.map((s) => s.body).join('\n');
-    const provs = await generateProvocations(explainText, docContext, explainRound);
+    const provs = await generateProvocations(explainText, documentText, explainRound);
     onSetProvocations(provs);
     onIncrementRound();
     setSubmitted(true);

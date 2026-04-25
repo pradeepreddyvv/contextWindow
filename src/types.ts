@@ -156,6 +156,8 @@ export interface AppState {
   userId: string;
   userName: string;
 
+  currentDocument: Document | null;
+
   // Battle Rooms (Multiplayer)
   roomState: RoomState;
 }

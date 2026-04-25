@@ -8,7 +8,6 @@ import BattlePhaseComponent from './BattlePhase';
 import RevealPhase from './RevealPhase';
 import BattleRoom from './BattleRoom';
 import { scoreAllAnswers } from '../services/answerScorerService';
-import { DOCUMENT } from '../services/mockData';
 
 type BattleScreen = 'menu' | 'solo' | 'multiplayer';
 
@@ -19,14 +18,14 @@ interface BattleModeProps {
 
 export default function BattleMode({ state, dispatch }: BattleModeProps) {
   const [battleScreen, setBattleScreen] = useState<BattleScreen>('menu');
+  const document = state.currentDocument!;
+  const docContext = document.sections.map((s) => s.body).join('\n');
 
   const handleSubmitAll = async () => {
-    const docContext = DOCUMENT.sections.map((s) => s.body).join('\n');
     const results = await scoreAllAnswers(state.acceptedQuestions, state.myAnswers, docContext);
     dispatch({ type: 'SET_BATTLE_RESULTS', payload: results });
   };
 
-  // If already in a solo battle phase, show it directly
   if (battleScreen === 'solo' || (battleScreen === 'menu' && state.battlePhase > 1)) {
     return (
       <div style={{
@@ -57,6 +56,7 @@ export default function BattleMode({ state, dispatch }: BattleModeProps) {
 
         {state.battlePhase === 1 && (
           <AuthorPhase
+            documentText={docContext}
             draftQuestion={state.draftQuestion}
             questionStatus={state.questionStatus}
             acceptedQuestions={state.acceptedQuestions}
@@ -92,12 +92,10 @@ export default function BattleMode({ state, dispatch }: BattleModeProps) {
     );
   }
 
-  // Multiplayer mode
   if (battleScreen === 'multiplayer') {
     return <BattleRoom state={state} dispatch={dispatch} />;
   }
 
-  // Menu: choose solo or multiplayer
   return (
     <div style={{
       maxWidth: '500px',

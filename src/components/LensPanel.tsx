@@ -1,32 +1,29 @@
 import { useState, useEffect } from 'react';
 import type { LensType, PinnedQuestion } from '../types';
 import { generateLensQuestions } from '../services/lensService';
-import { DOCUMENT } from '../services/mockData';
 
 interface LensPanelProps {
   activeLens: Exclude<LensType, 'explain'>;
+  documentText: string;
   onPin: (q: PinnedQuestion) => void;
   pinnedIds: string[];
 }
 
-export default function LensPanel({ activeLens, onPin, pinnedIds }: LensPanelProps) {
+export default function LensPanel({ activeLens, documentText, onPin, pinnedIds }: LensPanelProps) {
   const [questions, setQuestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    generateLensQuestions(
-      DOCUMENT.sections.map((s) => s.body).join('\n'),
-      activeLens
-    ).then((qs) => {
+    generateLensQuestions(documentText, activeLens).then((qs) => {
       if (!cancelled) {
         setQuestions(qs);
         setLoading(false);
       }
     });
     return () => { cancelled = true; };
-  }, [activeLens]);
+  }, [activeLens, documentText]);
 
   const lensColors: Record<string, string> = {
     watch: 'var(--color-lens-watch)',

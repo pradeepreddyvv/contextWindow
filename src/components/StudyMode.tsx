@@ -13,6 +13,9 @@ interface StudyModeProps {
 }
 
 export default function StudyMode({ state, dispatch }: StudyModeProps) {
+  const document = state.currentDocument!;
+  const documentText = document.sections.map((s) => s.body).join('\n');
+
   return (
     <div style={{
       display: 'grid',
@@ -20,7 +23,7 @@ export default function StudyMode({ state, dispatch }: StudyModeProps) {
       height: 'calc(100vh - 52px)',
       overflow: 'hidden',
     }}>
-      <ResourcesSidebar />
+      <ResourcesSidebar document={document} />
 
       <main style={{
         padding: '1.5rem 2rem',
@@ -34,11 +37,13 @@ export default function StudyMode({ state, dispatch }: StudyModeProps) {
         {state.activeLens !== 'explain' ? (
           <LensPanel
             activeLens={state.activeLens}
+            documentText={documentText}
             onPin={(q) => dispatch({ type: 'PIN_QUESTION', payload: q })}
             pinnedIds={state.pinnedQuestions.map((q) => q.id)}
           />
         ) : (
           <ExplainItBack
+            documentText={documentText}
             explainText={state.explainText}
             explainRound={state.explainRound}
             explainProvocations={state.explainProvocations}
@@ -49,6 +54,7 @@ export default function StudyMode({ state, dispatch }: StudyModeProps) {
         )}
 
         <DocumentReader
+          document={document}
           engagedProvocations={state.engagedProvocations}
           onEngage={(id) => dispatch({ type: 'ENGAGE_PROVOCATION', payload: id })}
           onHighlight={(text) =>
@@ -61,6 +67,7 @@ export default function StudyMode({ state, dispatch }: StudyModeProps) {
       </main>
 
       <OutlinePanel
+        document={document}
         pinnedQuestions={state.pinnedQuestions}
         highlights={state.highlights}
         engagedProvocations={state.engagedProvocations}

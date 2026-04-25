@@ -1,9 +1,10 @@
-import type { Highlight, PinnedQuestion } from '../types';
+import type { Document, Highlight, PinnedQuestion } from '../types';
 import PinnedQuestions from './PinnedQuestions';
 import Highlights from './Highlights';
 import EngagedProvocations from './EngagedProvocations';
 
 interface OutlinePanelProps {
+  document: Document;
   pinnedQuestions: PinnedQuestion[];
   highlights: Highlight[];
   engagedProvocations: string[];
@@ -12,6 +13,7 @@ interface OutlinePanelProps {
 }
 
 export default function OutlinePanel({
+  document,
   pinnedQuestions,
   highlights,
   engagedProvocations,
@@ -30,22 +32,19 @@ export default function OutlinePanel({
     }}>
       <p className="label" style={{ marginBottom: '1rem', fontSize: '0.7rem' }}>Your Outline</p>
 
-      {/* Pinned Questions */}
       <div style={{ marginBottom: '1.5rem' }}>
         <p className="label" style={{ marginBottom: '0.5rem' }}>Pinned Questions</p>
         <PinnedQuestions questions={pinnedQuestions} />
       </div>
 
-      {/* Highlights */}
       <div style={{ marginBottom: '1.5rem' }}>
         <p className="label" style={{ marginBottom: '0.5rem' }}>Highlights</p>
         <Highlights highlights={highlights} onUpdateNote={onUpdateNote} />
       </div>
 
-      {/* Engaged Provocations */}
       <div style={{ marginBottom: '1.5rem' }}>
         <p className="label" style={{ marginBottom: '0.5rem' }}>Engaged Provocations</p>
-        <EngagedProvocations engagedIds={engagedProvocations} />
+        <EngagedProvocations document={document} engagedIds={engagedProvocations} />
       </div>
 
       <button

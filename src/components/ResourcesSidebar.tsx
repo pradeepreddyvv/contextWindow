@@ -1,6 +1,10 @@
-import { DOCUMENT } from '../services/mockData';
+import type { Document } from '../types';
 
-export default function ResourcesSidebar() {
+interface ResourcesSidebarProps {
+  document: Document;
+}
+
+export default function ResourcesSidebar({ document }: ResourcesSidebarProps) {
   return (
     <aside style={{
       width: 'var(--sidebar-width)',
@@ -22,7 +26,7 @@ export default function ResourcesSidebar() {
           fontWeight: 600,
           color: 'var(--color-ink)',
         }}>
-          {DOCUMENT.title}
+          {document.title}
         </p>
         <p style={{
           fontFamily: 'var(--font-ui)',
@@ -31,7 +35,7 @@ export default function ResourcesSidebar() {
           marginTop: '0.25rem',
           textTransform: 'uppercase',
         }}>
-          3 sections
+          {document.sections.length} sections
         </p>
       </div>
     </aside>

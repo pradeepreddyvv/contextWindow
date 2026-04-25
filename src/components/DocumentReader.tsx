@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { DOCUMENT } from '../services/mockData';
-import type { InlineProvocation } from '../types';
+import type { Document, InlineProvocation } from '../types';
 import ProvocationCard from './ProvocationCard';
 
 interface DocumentReaderProps {
+  document: Document;
   engagedProvocations: string[];
   onEngage: (id: string) => void;
   onHighlight: (text: string) => void;
 }
 
-export default function DocumentReader({ engagedProvocations, onEngage, onHighlight: _onHighlight }: DocumentReaderProps) {
+export default function DocumentReader({ document, engagedProvocations, onEngage, onHighlight: _onHighlight }: DocumentReaderProps) {
   const [openProv, setOpenProv] = useState<string | null>(null);
 
   const renderTextWithProvocations = (body: string, provocations: InlineProvocation[]) => {
@@ -93,17 +93,19 @@ export default function DocumentReader({ engagedProvocations, onEngage, onHighli
         fontSize: '1.75rem',
         marginBottom: '0.25rem',
       }}>
-        {DOCUMENT.title}
+        {document.title}
       </h2>
-      <p style={{
-        color: 'var(--color-muted)',
-        fontSize: '0.9rem',
-        marginBottom: '2rem',
-      }}>
-        {DOCUMENT.subtitle}
-      </p>
+      {document.subtitle && (
+        <p style={{
+          color: 'var(--color-muted)',
+          fontSize: '0.9rem',
+          marginBottom: '2rem',
+        }}>
+          {document.subtitle}
+        </p>
+      )}
 
-      {DOCUMENT.sections.map((section, idx) => (
+      {document.sections.map((section, idx) => (
         <section key={idx} style={{ marginBottom: '2rem' }}>
           <h3 style={{
             fontFamily: 'var(--font-display)',

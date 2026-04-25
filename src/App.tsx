@@ -1,8 +1,10 @@
-﻿import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect } from 'react';
 import { reducer, initialState } from './reducer';
 import { useAuth } from './hooks/useAuth';
+import { parseTextToDocument } from './services/documentParser';
 import AuthGate from './components/AuthGate';
 import Header from './components/Header';
+import DocumentUpload from './components/DocumentUpload';
 import StudyMode from './components/StudyMode';
 import BattleMode from './components/BattleMode';
 
@@ -40,23 +42,34 @@ export default function App() {
     }
   }, [state]);
 
+  const handleDocumentReady = (content: string, title: string) => {
+    const doc = parseTextToDocument(content, title);
+    dispatch({ type: 'SET_DOCUMENT', payload: doc });
+  };
+
   return (
     <AuthGate user={user} loading={loading} error={error} onSignIn={signIn} onSignUp={signUp}>
       <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Header
-          mode={state.mode}
-          userName={state.userName}
-          onSetMode={(mode) => dispatch({ type: 'SET_MODE', payload: mode })}
-          onSignOut={signOut}
-          onReset={() => {
-            dispatch({ type: 'RESET_SESSION' });
-            try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
-          }}
-        />
-        {state.mode === 'study' ? (
-          <StudyMode state={state} dispatch={dispatch} />
+        {state.currentDocument ? (
+          <>
+            <Header
+              mode={state.mode}
+              userName={state.userName}
+              onSetMode={(mode) => dispatch({ type: 'SET_MODE', payload: mode })}
+              onSignOut={signOut}
+              onReset={() => {
+                dispatch({ type: 'RESET_SESSION' });
+                try { localStorage.removeItem(STORAGE_KEY); } catch { /* */ }
+              }}
+            />
+            {state.mode === 'study' ? (
+              <StudyMode state={state} dispatch={dispatch} />
+            ) : (
+              <BattleMode state={state} dispatch={dispatch} />
+            )}
+          </>
         ) : (
-          <BattleMode state={state} dispatch={dispatch} />
+          <DocumentUpload onDocumentReady={handleDocumentReady} />
         )}
       </div>
     </AuthGate>

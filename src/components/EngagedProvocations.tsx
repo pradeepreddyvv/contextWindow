@@ -1,12 +1,12 @@
-import type { InlineProvocation } from '../types';
-import { MOCK_PROVOCATIONS } from '../services/mockData';
+import type { Document, InlineProvocation } from '../types';
 
 interface EngagedProvocationsProps {
+  document: Document;
   engagedIds: string[];
 }
 
-export default function EngagedProvocations({ engagedIds }: EngagedProvocationsProps) {
-  const allProvocations: InlineProvocation[] = MOCK_PROVOCATIONS;
+export default function EngagedProvocations({ document, engagedIds }: EngagedProvocationsProps) {
+  const allProvocations: InlineProvocation[] = document.sections.flatMap((s) => s.provocations);
 
   if (engagedIds.length === 0) {
     return (

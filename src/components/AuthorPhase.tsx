@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { BattleQuestion } from '../types';
 import { evaluateQuestion } from '../services/questionEvaluatorService';
-import { DOCUMENT } from '../services/mockData';
 import QuestionPool from './QuestionPool';
 
 interface AuthorPhaseProps {
+  documentText: string;
   draftQuestion: string;
   questionStatus: { ok: boolean; msg: string } | null;
   acceptedQuestions: BattleQuestion[];
@@ -16,6 +16,7 @@ interface AuthorPhaseProps {
 }
 
 export default function AuthorPhase({
+  documentText,
   draftQuestion,
   questionStatus,
   acceptedQuestions,
@@ -29,8 +30,7 @@ export default function AuthorPhase({
 
   const handleSubmit = async () => {
     setLoading(true);
-    const docContext = DOCUMENT.sections.map((s) => s.body).join('\n');
-    const result = await evaluateQuestion(draftQuestion, docContext);
+    const result = await evaluateQuestion(draftQuestion, documentText);
     if (result.accepted) {
       onAccept({ text: draftQuestion.trim(), author: userName || 'You' });
     }

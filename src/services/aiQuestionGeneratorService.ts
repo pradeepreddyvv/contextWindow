@@ -1,83 +1,83 @@
 import { checkContent } from './guardrailService';
+import { isLLMAvailable, generateCompletion } from './llmService';
 import type { BattleRoomQuestion } from '../types';
 
 const RECALL_STARTERS = ['what is', 'what are', 'define', 'list', 'name'];
 
-/**
- * Generates mechanism-level questions about a document for Battle Rooms.
- * In mock mode, returns hardcoded questions. With a real LLM, would call the API.
- * All output passes through guardrailService before returning.
- */
+const BATTLE_QUESTION_SYSTEM_PROMPT = `You are a pedagogical AI that generates mechanism-level questions for a student battle mode. Students will answer these questions to prove understanding through reasoning, not recall.
+
+Generate questions that:
+- Ask about mechanisms, causal chains, consequences, or trade-offs
+- Use "why", "how", "what would happen if", "compare"
+- Require explaining processes, not reciting facts
+- Each question must end with "?"
+
+RULES:
+- NEVER generate recall questions ("What is X?", "Define X", "List the types of...")
+- NEVER provide answers or hints
+- Each question should be self-contained and understandable without the document
+- Focus on reasoning rigor
+
+Return one question per line, numbered.`;
+
 export async function generateBattleQuestions(
   documentText: string,
   topic: string,
   count: number
 ): Promise<BattleRoomQuestion[]> {
-  // For now, use rule-based generation from document content.
-  // This will be replaced with real LLM calls when API key is provided.
-  const candidates = getMechanismQuestions(documentText, topic);
+  if (isLLMAvailable()) {
+    try {
+      const userPrompt = `Generate ${count} mechanism-level questions about "${topic}" based on this document:\n\n${documentText.slice(0, 3000)}`;
+      const response = await generateCompletion(BATTLE_QUESTION_SYSTEM_PROMPT, userPrompt);
 
-  const questions: BattleRoomQuestion[] = [];
-  for (const candidate of candidates) {
-    if (questions.length >= count) break;
+      const candidates = response
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .map((line) => line.replace(/^[\d\-\*\.]+\s*/, ''))
+        .filter((line) => line.endsWith('?'));
 
-    // Guardrail check
-    const check = checkContent(candidate);
-    if (!check.passed) continue;
+      const questions: BattleRoomQuestion[] = [];
+      for (const candidate of candidates) {
+        if (questions.length >= count) break;
+        const check = checkContent(candidate);
+        if (!check.passed) continue;
+        const lower = candidate.toLowerCase();
+        const isRecall = RECALL_STARTERS.some(
+          (s) => lower.startsWith(s) && !lower.includes('if') && !lower.includes('would') && !lower.includes('happen')
+        );
+        if (isRecall) continue;
+        questions.push({
+          id: `q-${Date.now()}-${questions.length}`,
+          text: check.sanitizedText,
+        });
+      }
 
-    // Reject recall-style questions
-    const lower = candidate.toLowerCase();
-    const isRecall = RECALL_STARTERS.some(
-      (s) => lower.startsWith(s) && !lower.includes('if') && !lower.includes('would') && !lower.includes('happen')
-    );
-    if (isRecall) continue;
+      if (questions.length >= count) return questions;
 
-    questions.push({
-      id: `q-${Date.now()}-${questions.length}`,
-      text: check.sanitizedText,
-    });
+      while (questions.length < count) {
+        questions.push({
+          id: `q-${Date.now()}-${questions.length}`,
+          text: FALLBACK_QUESTIONS[questions.length % FALLBACK_QUESTIONS.length],
+        });
+      }
+      return questions;
+    } catch (error) {
+      console.error('LLM question generation failed, falling back to rule-based:', error);
+    }
   }
 
-  // If we didn't get enough, fill with fallback mechanism questions
-  while (questions.length < count) {
-    const fallback = FALLBACK_QUESTIONS[questions.length % FALLBACK_QUESTIONS.length];
-    questions.push({
-      id: `q-${Date.now()}-${questions.length}`,
-      text: fallback,
-    });
-  }
-
-  return questions;
+  return getFallbackQuestions(count);
 }
 
-function getMechanismQuestions(documentText: string, _topic: string): string[] {
-  // Extract key concepts from document and generate mechanism questions
-  const questions: string[] = [];
-
-  if (documentText.includes('useEffect') || documentText.includes('effect')) {
-    questions.push(
-      'If useEffect\'s cleanup function were removed entirely, what chain of consequences would occur during repeated re-renders?',
-      'How does the dependency array mechanism determine when an effect should re-execute, and what breaks when object references are used as dependencies?',
-      'Why does React\'s Strict Mode run effects twice in development, and what category of production bugs does this double-invocation expose?',
-      'Compare the behavior of an effect with an empty dependency array versus one with no dependency array — what are the practical consequences of each?',
-      'If a component using useEffect were unmounted and immediately remounted, what would happen to active subscriptions without proper cleanup?',
-      'What would happen to browser memory if event listeners added in useEffect were never cleaned up across 100 re-renders?',
-      'How does the concept of idempotency apply to useEffect cleanup functions, and what fails when cleanup is not idempotent?',
-    );
+function getFallbackQuestions(count: number): BattleRoomQuestion[] {
+  const questions: BattleRoomQuestion[] = [];
+  for (let i = 0; i < count; i++) {
+    questions.push({
+      id: `q-${Date.now()}-${i}`,
+      text: FALLBACK_QUESTIONS[i % FALLBACK_QUESTIONS.length],
+    });
   }
-
-  if (documentText.includes('closure') || documentText.includes('stale')) {
-    questions.push(
-      'How do JavaScript closures interact with useEffect to create stale state bugs, and what mechanism prevents them?',
-    );
-  }
-
-  if (documentText.includes('render') || documentText.includes('virtual DOM')) {
-    questions.push(
-      'What is the relationship between React\'s render cycle and when useEffect callbacks execute — and why was this ordering chosen?',
-    );
-  }
-
   return questions;
 }
 

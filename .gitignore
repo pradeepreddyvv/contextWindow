@@ -34,3 +34,6 @@ coverage/
 *.tmp
 *.bak
 .vercel
+
+# Test files
+*.pdf
